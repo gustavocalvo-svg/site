@@ -1,0 +1,282 @@
+
+<!--
+  Site: "O Poder Invisível dos Cogumelos"
+  Arquivo: index.html (single-file site)
+
+  Instruções:
+  1) Salve este arquivo como index.html
+  2) Crie um repositório no GitHub (ex: meu-site-cogumelos) e envie este index.html para a branch main
+  3) Vá em Settings -> Pages e selecione Branch: main / Folder: root -> Save
+  4) Aguarde o GitHub Pages publicar (o link aparecerá na mesma página)
+
+  Este site é responsivo, tem animações CSS, um canvas interativo que simula
+  "micélio" (nó + conexões), e se encaixa em GitHub Pages sem dependências.
+-->
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>O Poder Invisível dos Cogumelos</title>
+  <meta name="description" content="Mini-site interativo sobre cogumelos: fatos, rede subterrânea e aplicações futuristas.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><text y='50%' font-size='48' text-anchor='middle' x='50%'>🍄</text></svg>">
+
+  <style>
+    :root{ --bg:#0f1724; --card:#0b1220; --accent:#9ae6b4; --muted:#94a3b8; --glass: rgba(255,255,255,0.04)}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(180deg,#071127 0%, #071b2e 50%, #06202b 100%);
+      color:#e6eef6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      line-height:1.45; display:flex; flex-direction:column;
+    }
+
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{font-size:28px}
+    h1{margin:0;font-weight:700}
+    nav a{color:var(--muted);text-decoration:none;margin-left:14px}
+
+    .hero{display:grid;grid-template-columns:1fr 480px;gap:28px;align-items:center;padding:28px;max-width:1200px;margin:0 auto;width:100%}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:22px;box-shadow:0 6px 24px rgba(2,6,23,0.6);}
+
+    .intro h2{font-size:26px;margin:6px 0}
+    .intro p{color:var(--muted);margin-top:6px}
+
+    .cta{margin-top:16px;display:flex;gap:12px}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 14px;border-radius:10px;color:var(--accent);cursor:pointer}
+    .btn:hover{transform:translateY(-3px)}
+
+    /* Canvas area */
+    .canvas-wrap{height:420px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+    canvas{display:block;width:100%;height:100%}
+
+    /* Facts grid */
+    .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+    .fact{background:var(--glass);padding:14px;border-radius:10px}
+    .fact h3{margin:0 0 6px 0;font-size:16px}
+    .fact p{margin:0;color:var(--muted);font-size:14px}
+
+    /* Gallery */
+    .gallery{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+    .mush{width:100px;height:100px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#123 0%,#012 100%);box-shadow: inset 0 -6px 18px rgba(0,0,0,0.4)}
+
+    main{max-width:1200px;margin:0 auto;padding:8px}
+
+    footer{margin-top:auto;padding:18px;text-align:center;color:var(--muted)}
+
+    /* Responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr;}
+      .facts{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:560px){
+      .facts{grid-template-columns:1fr}
+      .mush{width:80px;height:80px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">🍄</div>
+      <div>
+        <div style="font-weight:700">O Poder Invisível</div>
+        <div style="font-size:12px;color:var(--muted)">Rede, ciência e aplicações dos fungos</div>
+      </div>
+    </div>
+    <nav>
+      <a href="#sobre">Sobre</a>
+      <a href="#rede">Rede</a>
+      <a href="#aplicacoes">Aplicações</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="card intro">
+        <h2>Cogumelos: a rede secreta que sustenta florestas</h2>
+        <p>Explore fatos surpreendentes, veja uma simulação interativa do micélio e conheça inovações — do couro sintético a bioplásticos feitos de micélio.</p>
+
+        <div class="cta">
+          <button class="btn" id="btn-facts">Surpreenda-me</button>
+          <button class="btn" id="btn-toggle">Pausar animação</button>
+          <a class="btn" href="#aplicacoes">Ver aplicações</a>
+        </div>
+
+        <div class="facts" style="margin-top:18px">
+          <div class="fact">
+            <h3>Maior organismo</h3>
+            <p>O Armillaria ostoyae cobre centenas de hectares nos EUA — possivelmente milhares de anos.</p>
+          </div>
+          <div class="fact">
+            <h3>Wood Wide Web</h3>
+            <p>Fungos conectam raízes e permitem troca de nutrientes e sinais químicos entre árvores.</p>
+          </div>
+          <div class="fact">
+            <h3>Frenagem regenerativa?</h3>
+            <p>Ok, não. Mas fungos limpam solos contaminados e quebram materiais tóxicos — bioremediação.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card canvas-wrap">
+        <canvas id="mycelium"></canvas>
+      </div>
+    </section>
+
+    <section id="sobre" class="card" style="margin-top:18px">
+      <h2>O que é micélio?</h2>
+      <p style="color:var(--muted)">Micélio é a teia subterrânea de filamentos (hifas) pela qual fungos crescem e se comunicam. Forma uma rede que conecta plantas, regula nutrientes e transforma matéria orgânica.</p>
+      <div class="gallery">
+        <div class="mush">🍄</div>
+        <div class="mush">🌿</div>
+        <div class="mush">🌧️</div>
+        <div class="mush">🧪</div>
+      </div>
+    </section>
+
+    <section id="rede" class="card" style="margin-top:18px">
+      <h2>Simulação interativa: toque e arraste</h2>
+      <p style="color:var(--muted)">Clique para criar "nós" (esporas). Arraste para mover. A rede tentará se reconectar automaticamente.</p>
+      <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn" id="btn-clear">Limpar nós</button>
+        <button class="btn" id="btn-random">Adicionar aleatório</button>
+      </div>
+    </section>
+
+    <section id="aplicacoes" class="card" style="margin-top:18px">
+      <h2>Aplicações reais e futuras</h2>
+      <ul style="color:var(--muted)">
+        <li><strong>Bioplásticos e embalagens</strong> — micélio moldado substitui espumas e isopores.</li>
+        <li><strong>Construção</strong> — tijolos de micélio com boa isolação térmica.</li>
+        <li><strong>Medicina</strong> — compostos antifúngicos e antibióticos derivados de fungos.</li>
+        <li><strong>Bioremediação</strong> — degradação de petróleo e poluentes orgânicos.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    <div style="max-width:900px;margin:0 auto">
+      <small>Feito pra GitHub Pages • Salve <code>index.html</code> no repositório e ative Pages (Branch: main, root).</small>
+    </div>
+  </footer>
+
+  <script>
+    // --- Simple interactive mycelium simulation ---
+    const canvas = document.getElementById('mycelium');
+    const ctx = canvas.getContext('2d');
+    let DPR = window.devicePixelRatio || 1;
+
+    function fit() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.floor(rect.width * DPR);
+      canvas.height = Math.floor(rect.height * DPR);
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+    fit();
+    window.addEventListener('resize', () => { fit(); draw(); });
+
+    // nodes and simple spring connections
+    const nodes = [];
+    const links = [];
+    let anim = true;
+
+    function Node(x,y){ this.x = x; this.y = y; this.vx = 0; this.vy = 0; this.r = 3 + Math.random()*4; }
+
+    function addNode(x,y){ const n = new Node(x,y); nodes.push(n); // connect to nearest 2
+      if(nodes.length>1){
+        const sorted = nodes.slice(0,-1).map((o,i)=>({i,dist: (o.x-n.x)**2+(o.y-n.y)**2})).sort((a,b)=>a.dist-b.dist);
+        for(let k=0;k<Math.min(2,sorted.length);k++) links.push([nodes.length-1, sorted[k].i]);
+      }
+    }
+
+    function randomNodes(n=6){ for(let i=0;i<n;i++) addNode(Math.random()*canvas.width/DPR, Math.random()*canvas.height/DPR); }
+    randomNodes(10);
+
+    // interactivity
+    let dragging = null;
+    canvas.addEventListener('pointerdown', (e)=>{
+      const rect = canvas.getBoundingClientRect(); const x = (e.clientX-rect.left); const y = (e.clientY-rect.top);
+      // check if on node
+      for(let i=nodes.length-1;i>=0;i--){ const d = Math.hypot(nodes[i].x-x, nodes[i].y-y); if(d < 12){ dragging = nodes[i]; dragging.vx = 0; dragging.vy = 0; return; } }
+      addNode(x,y);
+    });
+    window.addEventListener('pointermove', (e)=>{
+      if(!dragging) return; const rect = canvas.getBoundingClientRect(); dragging.x = (e.clientX-rect.left); dragging.y = (e.clientY-rect.top);
+    });
+    window.addEventListener('pointerup', ()=>{ dragging = null; });
+
+    // physics step
+    function step(dt){
+      // springs
+      for(const [a,b] of links){
+        const A = nodes[a], B = nodes[b];
+        const dx = B.x - A.x, dy = B.y - A.y; const dist = Math.hypot(dx,dy) || 0.001;
+        const desired = 80; const k = 0.02;
+        const force = (dist - desired) * k;
+        const fx = (dx/dist)*force, fy = (dy/dist)*force;
+        A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
+      }
+      // repulsion
+      for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++){
+        const A=nodes[i], B=nodes[j]; const dx=B.x-A.x, dy=B.y-A.y; const d2=dx*dx+dy*dy || 0.0001;
+        const minDist = 20; if(d2 < minDist*minDist){ const f = 0.6/(Math.sqrt(d2)); A.vx -= dx*f; A.vy -= dy*f; B.vx += dx*f; B.vy += dy*f; }
+      }
+      // integrate
+      for(const n of nodes){ if(n===dragging) continue; n.vx *= 0.95; n.vy *= 0.95; n.x += n.vx*dt; n.y += n.vy*dt; // bounds
+        const w = canvas.width/DPR, h = canvas.height/DPR; if(n.x<0) n.x=0; if(n.y<0) n.y=0; if(n.x>w) n.x=w; if(n.y>h) n.y=h; }
+    }
+
+    function draw(){
+      const w = canvas.width/DPR, h = canvas.height/DPR;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // background subtle gradient
+      const g = ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'rgba(10,20,40,0.8)'); g.addColorStop(1,'rgba(5,10,20,0.6)');
+      ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+
+      // links
+      ctx.lineWidth = 1.2; ctx.strokeStyle = 'rgba(154,230,180,0.7)';
+      for(const [a,b] of links){ const A=nodes[a], B=nodes[b]; ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(B.x,B.y); ctx.stroke(); }
+
+      // nodes
+      for(const n of nodes){ ctx.beginPath(); const rad = Math.max(2,n.r); ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.arc(n.x,n.y,rad,0,Math.PI*2); ctx.fill(); }
+
+      // overlay text
+      ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(12,h-64,w-24,52);
+      ctx.fillStyle = 'rgba(14,29,44,0.7)'; ctx.font = '12px system-ui'; ctx.fillText('Toque para criar nós • Arraste para mover • Rede tenta se reconectar automaticamente', 20, h-40);
+    }
+
+    let last = performance.now();
+    function loop(t){
+      const dt = Math.min(1/30, (t-last)/1000);
+      last = t;
+      if(anim){ step(dt*30); }
+      draw();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // controls
+    document.getElementById('btn-clear').addEventListener('click', ()=>{ nodes.length=0; links.length=0; });
+    document.getElementById('btn-random').addEventListener('click', ()=>{ randomNodes(6); });
+    document.getElementById('btn-toggle').addEventListener('click', ()=>{ anim = !anim; document.getElementById('btn-toggle').textContent = anim ? 'Pausar animação' : 'Retomar animação'; });
+    document.getElementById('btn-facts').addEventListener('click', ()=>{
+      const facts = [
+        'O maior organismo vivo conhecido é um fungo que cobre centenas de hectares.',
+        'Micélio forma uma verdadeira "internet" de plantas; cientistas chamam de "Wood Wide Web".',
+        'Fungos já foram enviados à Estação Espacial — alguns prosperaram na radiação.'
+      ];
+      alert(facts[Math.floor(Math.random()*facts.length)]);
+    });
+
+    // add some ambient nodes slowly
+    setInterval(()=>{ if(Math.random()>0.6) randomNodes(1); }, 2200);
+
+  </script>
+</body>
+</html>
